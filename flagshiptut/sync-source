@@ -1,0 +1,26 @@
+#!/bin/bash
+
+. ./deploy.properties
+
+TOMCAT=/g01/srv/$tomcat
+
+
+SRC_DIR=$PWD/src/main/webapp/
+SRC2_DIR=$PWD/target/$app_target/WEB-INF
+DEST_DIR=$TOMCAT/webapps/$app
+
+echo $SRC_DIR
+echo $DEST_DIR
+
+#1/13/15
+#turn off sync-source on ubuntu
+
+echo "starting sync-source"
+
+while true
+do 
+#   rsync -a --delete --exclude=".*"  --exclude="WEB-INF/" --exclude="META-INF" $SRC_DIR $DEST_DIR
+    rsync -a  $SRC_DIR  $DEST_DIR
+    rsync -a  $SRC2_DIR $DEST_DIR
+    sleep 2    
+done
