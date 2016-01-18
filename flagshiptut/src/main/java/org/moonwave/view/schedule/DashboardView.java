@@ -74,7 +74,7 @@ public class DashboardView extends BaseView {
             List<Schedule> schedules = new ScheduleBO().findByUserId(super.getLoggedInUser().getId());
             List<Schedule> tutorSchedules = new ScheduleBO().findByTutorId(super.getLoggedInUser().getId());
             for (int i = tutorSchedules.size() -1; i >= 0; i--) {
-                if (tutorSchedules.get(i).getTutorEvent()) {
+                if (tutorSchedules.get(i).isTutorEvent()) {
                     tutorSchedules.remove(tutorSchedules.get(i));
                 }
             }

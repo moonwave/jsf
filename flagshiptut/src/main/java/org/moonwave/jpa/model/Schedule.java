@@ -143,7 +143,7 @@ public class Schedule implements Serializable {
         this.allDayEvent = allDayEvent;
     }
 
-    public Boolean getTutorEvent() {
+    public Boolean isTutorEvent() {
         return (tutorEvent != null) ? tutorEvent : false;
     }
 

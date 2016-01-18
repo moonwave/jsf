@@ -287,7 +287,7 @@ public class TutorScheduleView extends BaseView {
         e.setTitle(s.getEvent());
         e.setStartDate(s.getStartTime());
         e.setEndDate(s.getEndTime());
-        if (s.getTutorEvent()) {
+        if (s.isTutorEvent()) {
             if (!super.getLoggedInUser().getId().equals(s.getTutorId())) {
                 e.setEditable(false); // cannot edit another tutor's event
                 e.setStyleClass("filled");

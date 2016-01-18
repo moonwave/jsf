@@ -1,9 +1,11 @@
 package org.moonwave.view.schedule;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -46,28 +48,33 @@ public class ScheduleView extends BaseView {
     private ScheduleModel eventModel;
     private ScheduleEvent event = new DefaultScheduleEvent();
 
-    private List<User> students;
+    private List<User> students = new ArrayList<>();
     private List<User> tutors;
     private String tutorId;
     private String studentId;
     private boolean tutorSetup = false;
-    private boolean edit = false;
-    private boolean remove = false;
+
+    // helper fields
+    private boolean allowSave = false;
+    private boolean allowRemove = false;
+    String eventTitle;
+    boolean showTutor = false;
 
     @PostConstruct
     public void init() {
         Map<String, String> rqm = FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap();
         tutorSetup = (rqm.get("tutorSetup") != null && rqm.get("tutorSetup").equals("true"));
-        edit = (rqm.get("edit") != null && rqm.get("edit").equals("true"));
+        allowSave = (rqm.get("edit") != null && rqm.get("edit").equals("true"));
 
         tutors = new UserBO().findAllTutors();
-        students = new UserBO().findAllStudents();
+        students.add(new UserBO().findById(super.getLoggedInUser().getId()));
 
         eventModel = new DefaultScheduleModel();
         List<Schedule> schedules = new ScheduleBO().getAllRoles();
         for (Schedule s : schedules) {
             eventModel.addEvent(scheduleToEvent(s));
         }
+        studentId =  super.getLoggedInUser().getId().toString();
 //        eventModel.addEvent(new DefaultScheduleEvent("Champions - today", previousDay8Pm(), previousDay11Pm(), "fc-foday"));
 //        eventModel.addEvent(new DefaultScheduleEvent("Birthday - filled", today1Pm(), today6Pm(), "filled"));
 //        eventModel.addEvent(new DefaultScheduleEvent("Breakfast - available", nextDay9Am(), nextDay11Am(), "available"));
@@ -127,22 +134,6 @@ public class ScheduleView extends BaseView {
         this.tutorSetup = tutorSetup;
     }
 
-    public boolean isEdit() {
-        return edit;
-    }
-
-    public void setEdit(boolean edit) {
-        this.edit = edit;
-    }
-
-    public boolean isRemove() {
-        return remove;
-    }
-
-    public void setRemove(boolean remove) {
-        this.remove = remove;
-    }
-
     public void onEventMove(ScheduleEntryMoveEvent event) {
         FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_INFO, "Event moved", "Day delta:" + event.getDayDelta() + ", Minute delta:" + event.getMinuteDelta());
         addMessage(message);
@@ -165,8 +156,11 @@ public class ScheduleView extends BaseView {
     public void onEventSelect(SelectEvent selectEvent) {
         LOG.info("onEventSelect called");
         event = (ScheduleEvent) selectEvent.getObject();
+        ResourceBundle resourceBundle = super.getLocaleLabels(); 
+        eventTitle = super.getLocaleLabels().getString("eventDetails");
+        showTutor = true;
         Schedule s = (Schedule)((DefaultScheduleEvent)event).getData();
-        if (s.getTutorEvent()) { // for student, create a new event based on selected tutor event
+        if (s.isTutorEvent()) { // for student, create a new event based on selected tutor event
             Schedule snew = new Schedule(s);
             snew.setId(null);
 //            snew.setUserId(getLoggedInUser().getId());
@@ -183,12 +177,13 @@ public class ScheduleView extends BaseView {
         }
         DefaultScheduleEvent ev = (DefaultScheduleEvent)event;
         if (s.getUserId() == null) {
-            this.edit = true; // new event, allow save
+            this.allowSave = true; // new event, allow save
         } else {
-            this.edit = getLoggedInUser().getId().equals(s.getUserId()); // a user can only edit his own event
+            this.allowSave = getLoggedInUser().getId().equals(s.getUserId()); // a user can only edit his own event
         }
-        this.remove = getLoggedInUser().getId().equals(s.getUserId()); // a user can only remove his own event
-        ev.setEditable(this.edit);
+        this.allowRemove = getLoggedInUser().getId().equals(s.getUserId()); // a user can only remove his own event
+        showTutor = s.isTutorEvent();
+        ev.setEditable(this.allowSave);
     }
 
     /**
@@ -200,9 +195,12 @@ public class ScheduleView extends BaseView {
     public void onDateSelect(SelectEvent selectEvent) {
         LOG.info("onDateSelect called, " + (Date) selectEvent.getObject());
         resetFields();
+        eventTitle = super.getLocaleLabels().getString("createPersonalEvent");
+        showTutor = false;
         Calendar calendar = DateUtil.dateToCalendar((Date) selectEvent.getObject());
         calendar.add(Calendar.HOUR, 1);
         event = new DefaultScheduleEvent("", (Date) selectEvent.getObject(), calendar.getTime());
+        this.allowSave = true; // new event, allow save
     }
 
     public void onViewChange(SelectEvent selectEvent) {
@@ -263,8 +261,12 @@ public class ScheduleView extends BaseView {
     // ========================================================= Private methods
     private boolean validate(ScheduleEvent event) {
         boolean ret = true;
-        if (StringUtil.nullOrEmpty(tutorId)) {
-            super.error("Tutor is empty");
+        if (event.getStartDate() == null) {
+            super.error("Start date is empty");
+            ret = false;
+        }
+        if (event.getEndDate() == null) {
+            super.error("End date is empty");
             ret = false;
         }
         return ret;
@@ -273,6 +275,9 @@ public class ScheduleView extends BaseView {
     private Schedule packageData(Schedule s, ScheduleEvent event) {
         if (s == null) {
             s = (Schedule)event.getData();
+            if (s == null) {
+                s = new Schedule();
+            }
             s.setCreateTime(super.getSqlTimestamp());
         }
         s.setTutorId(StringUtil.nullOrEmpty(tutorId) ? null : Integer.parseInt(tutorId));
@@ -289,7 +294,7 @@ public class ScheduleView extends BaseView {
         e.setData(s);
         e.setAllDay(s.getAllDayEvent());
         e.setEditable(true);
-        if (s.getTutorEvent()) {
+        if (s.isTutorEvent()) {
             e.setEditable(false); // tutor event not editable for student
             e.setStyleClass("tutorEvent");
         } else if (s.getParentEventId() != null) {
@@ -307,8 +312,25 @@ public class ScheduleView extends BaseView {
     }
 
     private void resetFields() {
-        this.studentId = null;
         this.tutorId = null;
-        this.remove = false;
+        this.allowRemove = false;
+    }
+
+    // ========================================================== Helper Methods
+
+    public String getEventTitle() {
+        return this.eventTitle;
+    }
+
+    public boolean showTutor() {
+        return this.showTutor;
+    }
+
+    public boolean allowSave() {
+        return allowSave; // true - allow save
+    }
+
+    public boolean allowRemove() {
+        return allowRemove; // true - allow remove
     }
 }

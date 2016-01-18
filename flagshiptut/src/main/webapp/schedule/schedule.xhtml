@@ -38,10 +38,11 @@
 
             </h:panelGrid>
 
-            <p:dialog widgetVar="eventDialog" header="Event Details" showEffect="clip" hideEffect="clip">
-                <h:panelGrid id="eventDetails" columns="2">
-                    <p:outputLabel for="tutor" value="Tutor:" />
-                    <p:selectOneMenu id="tutor" value="#{scheduleView.tutorId}" required="true"
+            <p:dialog id="eventDetails" widgetVar="eventDialog" header="${scheduleView.getEventTitle()}" showEffect="clip" hideEffect="clip">
+                <h:panelGrid columns="2">
+                    <p:outputLabel for="tutor" value="Tutor:" rendered="${scheduleView.showTutor()}" />
+                    <p:selectOneMenu id="tutor" value="#{scheduleView.tutorId}" rendered="${scheduleView.showTutor()}"
+                                     disabled="true"
                                      filter="true" filterMatchMode="startsWith" panelStyle="width:250px">
                         <f:selectItem itemValue="" itemLabel="Select One"/>
                         <f:selectItems value="#{scheduleView.tutors}" var="user" itemLabel="#{user.firstName} #{user.lastName}" itemValue="#{user.id}" />
@@ -72,13 +73,13 @@
                     <h:panelGroup>
 	                    <p:commandButton type="reset" value="Reset" />
 	                    <p:commandButton id="saveButton" value="Save" ajax="true" actionListener="#{scheduleView.saveEvent}"
-	                       update="messages" disabled="#{!scheduleView.edit}"
+	                       update="messages" disabled="${!scheduleView.allowSave()}"
 	                       oncomplete="PF('myschedule').update(); PF('eventDialog').hide();" />
                     </h:panelGroup>
                     <p:outputLabel value="" />
                     <h:panelGroup>
                         <p:commandButton id="removeButton" value="Remove" ajax="true" actionListener="#{scheduleView.removeEvent}" 
-                           update="messages" disabled="#{!scheduleView.remove}"
+                           update="messages" disabled="${!scheduleView.allowRemove()}"
                            oncomplete="PF('myschedule').update(); PF('eventDialog').hide();" />
                         <p:commandButton id="closeButton" value="Close" onclick="PF('eventDialog').hide();return false;" />
                     </h:panelGroup>
