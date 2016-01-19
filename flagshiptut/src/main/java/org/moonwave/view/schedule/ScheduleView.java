@@ -182,7 +182,7 @@ public class ScheduleView extends BaseView {
             this.allowSave = getLoggedInUser().getId().equals(s.getUserId()); // a user can only edit his own event
         }
         this.allowRemove = getLoggedInUser().getId().equals(s.getUserId()); // a user can only remove his own event
-        showTutor = s.isTutorEvent();
+        showTutor = s.isTutorEvent() || (this.tutorId != null);
         ev.setEditable(this.allowSave);
     }
 
