@@ -45,7 +45,7 @@
                                      disabled="true"
                                      filter="true" filterMatchMode="startsWith" panelStyle="width:250px">
                         <f:selectItem itemValue="" itemLabel="Select One"/>
-                        <f:selectItems value="#{scheduleView.tutors}" var="user" itemLabel="#{user.firstName} #{user.lastName}" itemValue="#{user.id}" />
+                        <f:selectItems value="#{scheduleView.tutors}" var="user" itemLabel="#{user.name}" itemValue="#{user.id}" />
                         <p:ajax event="change" partialSubmit="true" process="@this" />
                     </p:selectOneMenu>
 
@@ -53,7 +53,7 @@
                     <p:selectOneMenu id="student" value="#{scheduleView.studentId}" required="#{! scheduleView.tutorSetup}"
                                      filter="true" filterMatchMode="startsWith" panelStyle="width:250px">
                         <f:selectItem itemValue="" itemLabel="Select One"/>
-                        <f:selectItems value="#{scheduleView.students}" var="user" itemLabel="#{user.firstName} #{user.lastName}" itemValue="#{user.id}" />
+                        <f:selectItems value="#{scheduleView.students}" var="user" itemLabel="#{user.name}" itemValue="#{user.id}" />
                         <p:ajax event="change" partialSubmit="true" process="@this" />
                     </p:selectOneMenu>
 

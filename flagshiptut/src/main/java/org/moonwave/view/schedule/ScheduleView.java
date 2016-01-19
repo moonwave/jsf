@@ -5,7 +5,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
@@ -156,7 +155,6 @@ public class ScheduleView extends BaseView {
     public void onEventSelect(SelectEvent selectEvent) {
         LOG.info("onEventSelect called");
         event = (ScheduleEvent) selectEvent.getObject();
-        ResourceBundle resourceBundle = super.getLocaleLabels(); 
         eventTitle = super.getLocaleLabels().getString("eventDetails");
         showTutor = true;
         Schedule s = (Schedule)((DefaultScheduleEvent)event).getData();
@@ -183,6 +181,9 @@ public class ScheduleView extends BaseView {
         }
         this.allowRemove = getLoggedInUser().getId().equals(s.getUserId()); // a user can only remove his own event
         showTutor = s.isTutorEvent() || (this.tutorId != null);
+        if (!showTutor) {
+            eventTitle = super.getLocaleLabels().getString("personalEvent");
+        }
         ev.setEditable(this.allowSave);
     }
 
