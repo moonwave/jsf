@@ -223,12 +223,12 @@ public class ScheduleView extends BaseView {
      * @param actionEvent
      */
     public void saveEvent(ActionEvent actionEvent) {
-        if (!validate(event)) {
-            return;
-        }
         if (event.getId() == null) {
             // date range validation
             Schedule s = this.packageData(null, event);
+            if (!validate(s)) {
+                return;
+            }
             super.getBasebo().persist(s);
             eventModel.addEvent(this.scheduleToEvent(s));
             super.info("Data saved successfully");
@@ -237,6 +237,9 @@ public class ScheduleView extends BaseView {
             // date range validation
             Schedule data = (Schedule)((DefaultScheduleEvent)event).getData();
             Schedule s = this.packageData(data, event);
+            if (!validate(s)) {
+                return;
+            }
             super.getBasebo().update(s);
             eventModel.updateEvent(event);
             super.info("Data saved successfully");
@@ -269,15 +272,24 @@ public class ScheduleView extends BaseView {
     }
 
     // ========================================================= Private methods
-    private boolean validate(ScheduleEvent event) {
+    private boolean validate(Schedule s) {
         boolean ret = true;
-        if (event.getStartDate() == null) {
+        if (s.getStartTime() == null) {
             super.error("Start date is empty");
             ret = false;
         }
-        if (event.getEndDate() == null) {
+        if (s.getEndTime() == null) {
             super.error("End date is empty");
             ret = false;
+        }
+        // check start time and end time range
+        List<Schedule> list1 = new ArrayList<Schedule>();
+        if (s.getTutorId() != null) {
+            list1.addAll(new ScheduleBO().findByTutorId(s.getTutorId()));
+        }
+        List<Schedule> list2 = new ArrayList<Schedule>();
+        if (s.getUserId() != null) {
+            list2.addAll(new ScheduleBO().findByUserId(s.getUserId()));
         }
         return ret;
     }
