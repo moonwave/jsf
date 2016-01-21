@@ -17,6 +17,7 @@ import org.moonwave.jpa.bo.ScheduleBO;
 import org.moonwave.jpa.bo.UserBO;
 import org.moonwave.jpa.model.Schedule;
 import org.moonwave.jpa.model.User;
+import org.moonwave.util.AppProperties;
 import org.moonwave.util.DateUtil;
 import org.moonwave.util.StringUtil;
 import org.moonwave.view.BaseView;
@@ -295,6 +296,10 @@ public class ScheduleView extends BaseView {
         s.setAllDayEvent(event.isAllDay());
         s.setStartTime(event.getStartDate());
         s.setEndTime(event.getEndDate());
+        if (event.isAllDay()) {
+            s.setStartTime(DateUtil.setHour(s.getStartTime(), Integer.valueOf(AppProperties.getInstance().getProperty(AppProperties.KEY_all_day_start))));
+            s.setEndTime(DateUtil.setHour(s.getEndTime(), Integer.valueOf(AppProperties.getInstance().getProperty(AppProperties.KEY_all_day_end))));
+        }
         return s;
     }
 
