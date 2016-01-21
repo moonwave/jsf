@@ -158,6 +158,7 @@ public class ScheduleView extends BaseView {
         event = (DefaultScheduleEvent) selectEvent.getObject();
         eventTitle = super.getLocaleLabels().getString("eventDetails");
         showTutor = true;
+        showDates = !event.isAllDay();
         Schedule s = (Schedule)((DefaultScheduleEvent)event).getData();
         if (s.isTutorEvent()) { // for student, create a new event based on selected tutor event
             Schedule snew = new Schedule(s);
@@ -322,6 +323,7 @@ public class ScheduleView extends BaseView {
     private void resetFields() {
         this.tutorId = null;
         this.allowRemove = false;
+        this.showDates = true;
     }
 
     // ========================================================== Helper Methods

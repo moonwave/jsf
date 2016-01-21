@@ -60,17 +60,22 @@
                     <p:outputLabel for="event" value="Event:" />
                     <p:inputText id="event" value="#{scheduleView.event.title}" required="true" />
 
-                    <h:panelGroup id="dates" columns="2">
+                    <h:panelGroup id="date1">
                         <p:outputLabel for="from" value="From:" rendered="${scheduleView.showDates()}"/>
+                    </h:panelGroup>
+                    <h:panelGroup id="date2">
                         <p:calendar id="from" value="#{scheduleView.event.startDate}" timeZone="America/Phoenix" pattern="MM/dd/yyyy HH:mm a" rendered="${scheduleView.showDates()}"/>
-    
+                    </h:panelGroup>
+                    <h:panelGroup id="date3">
                         <p:outputLabel for="to" value="To:" rendered="${scheduleView.showDates()}"/>
+                    </h:panelGroup>
+                    <h:panelGroup id="date4">
                         <p:calendar id="to" value="#{scheduleView.event.endDate}" timeZone="America/Phoenix" pattern="MM/dd/yyyy HH:mm a" rendered="${scheduleView.showDates()}"/>
                     </h:panelGroup>
 
                     <p:outputLabel for="allDay" value="All Day:" />
                     <p:selectBooleanCheckbox id="allDay" value="#{scheduleView.event.allDay}" >
-                        <p:ajax update="dates" listener="#{scheduleView.onAllDayChanged}" />
+                        <p:ajax update="date1 date2 date3 date4" listener="#{scheduleView.onAllDayChanged}" />
                     </p:selectBooleanCheckbox>
         
                     <p:outputLabel value="" />
