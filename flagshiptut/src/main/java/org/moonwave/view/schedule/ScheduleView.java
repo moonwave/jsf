@@ -45,7 +45,7 @@ public class ScheduleView extends BaseView {
     static final Logger LOG = LoggerFactory.getLogger(ScheduleView.class);
 
     private ScheduleModel eventModel;
-    private ScheduleEvent event = new DefaultScheduleEvent();
+    private DefaultScheduleEvent event = new DefaultScheduleEvent();
 
     private List<User> students = new ArrayList<>();
     private List<User> tutors;
@@ -58,6 +58,7 @@ public class ScheduleView extends BaseView {
     private boolean allowRemove = false;
     String eventTitle;
     boolean showTutor = false;
+    boolean showDates = true;
 
     @PostConstruct
     public void init() {
@@ -117,12 +118,12 @@ public class ScheduleView extends BaseView {
         return eventModel;
     }
 
-    public ScheduleEvent getEvent() {
+    public DefaultScheduleEvent getEvent() {
         return event;
     }
 
-    public void setEvent(ScheduleEvent event) {
-        this.event = event;
+    public void setEvent(DefaultScheduleEvent event) {
+        this.event = (DefaultScheduleEvent)event;
     }
 
     public boolean isTutorSetup() {
@@ -154,7 +155,7 @@ public class ScheduleView extends BaseView {
      */
     public void onEventSelect(SelectEvent selectEvent) {
         LOG.info("onEventSelect called");
-        event = (ScheduleEvent) selectEvent.getObject();
+        event = (DefaultScheduleEvent) selectEvent.getObject();
         eventTitle = super.getLocaleLabels().getString("eventDetails");
         showTutor = true;
         Schedule s = (Schedule)((DefaultScheduleEvent)event).getData();
@@ -259,6 +260,12 @@ public class ScheduleView extends BaseView {
         event = new DefaultScheduleEvent();
     }
 
+    // ========================================================= Action Listener
+
+    public void onAllDayChanged() {
+        this.showDates = !this.event.isAllDay();
+    }
+
     // ========================================================= Private methods
     private boolean validate(ScheduleEvent event) {
         boolean ret = true;
@@ -325,6 +332,10 @@ public class ScheduleView extends BaseView {
 
     public boolean showTutor() {
         return this.showTutor;
+    }
+
+    public boolean showDates() {
+        return this.showDates;
     }
 
     public boolean allowSave() {

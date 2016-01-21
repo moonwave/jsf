@@ -60,21 +60,25 @@
                     <p:outputLabel for="event" value="Event:" />
                     <p:inputText id="event" value="#{scheduleView.event.title}" required="true" />
 
-                    <p:outputLabel for="from" value="From:" />
-                    <p:calendar id="from" value="#{scheduleView.event.startDate}" timeZone="America/Phoenix" pattern="MM/dd/yyyy HH:mm a"/>
-
-                    <p:outputLabel for="to" value="To:" />
-                    <p:calendar id="to" value="#{scheduleView.event.endDate}" timeZone="America/Phoenix" pattern="MM/dd/yyyy HH:mm a"/>
+                    <h:panelGroup id="dates" columns="2">
+                        <p:outputLabel for="from" value="From:" rendered="${scheduleView.showDates()}"/>
+                        <p:calendar id="from" value="#{scheduleView.event.startDate}" timeZone="America/Phoenix" pattern="MM/dd/yyyy HH:mm a" rendered="${scheduleView.showDates()}"/>
+    
+                        <p:outputLabel for="to" value="To:" rendered="${scheduleView.showDates()}"/>
+                        <p:calendar id="to" value="#{scheduleView.event.endDate}" timeZone="America/Phoenix" pattern="MM/dd/yyyy HH:mm a" rendered="${scheduleView.showDates()}"/>
+                    </h:panelGroup>
 
                     <p:outputLabel for="allDay" value="All Day:" />
-                    <h:selectBooleanCheckbox id="allDay" value="#{scheduleView.event.allDay}" />
-
+                    <p:selectBooleanCheckbox id="allDay" value="#{scheduleView.event.allDay}" >
+                        <p:ajax update="dates" listener="#{scheduleView.onAllDayChanged}" />
+                    </p:selectBooleanCheckbox>
+        
                     <p:outputLabel value="" />
                     <h:panelGroup>
-	                    <p:commandButton type="reset" value="Reset" />
-	                    <p:commandButton id="saveButton" value="Save" ajax="true" actionListener="#{scheduleView.saveEvent}"
-	                       update="messages" disabled="${!scheduleView.allowSave()}"
-	                       oncomplete="PF('myschedule').update(); PF('eventDialog').hide();" />
+                        <p:commandButton type="reset" value="Reset" />
+                        <p:commandButton id="saveButton" value="Save" ajax="true" actionListener="#{scheduleView.saveEvent}"
+                           update="messages" disabled="${!scheduleView.allowSave()}"
+                           oncomplete="PF('myschedule').update(); PF('eventDialog').hide();" />
                     </h:panelGroup>
                     <p:outputLabel value="" />
                     <h:panelGroup>
