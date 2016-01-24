@@ -45,6 +45,25 @@ public class ScheduleBO extends BaseBO {
     }
 
     @SuppressWarnings("unchecked")
+    public List<Schedule>  findByTutorId(Integer tutorId) {
+        Query query = super.getEntityManager().createNamedQuery("Schedule.findByTutorId", Schedule.class);
+        query.setParameter("tutorId", tutorId);
+        List<Schedule> list = query.getResultList();
+        super.release();
+        return list;
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Schedule>  findByTutorIdDate(Integer tutorId, java.util.Date date) {
+        Query query = super.getEntityManager().createNamedQuery("Schedule.findByTutorIdDate", Schedule.class);
+        query.setParameter("tutorId", tutorId);
+        query.setParameter("date", date);
+        List<Schedule> list = query.getResultList();
+        super.release();
+        return list;
+    }
+
+    @SuppressWarnings("unchecked")
     public List<Schedule> findByUserId(Integer userId) {
         Query query = super.getEntityManager().createNamedQuery("Schedule.findByUserId", Schedule.class);
         query.setParameter("userId", userId);
@@ -54,10 +73,11 @@ public class ScheduleBO extends BaseBO {
     }
 
     @SuppressWarnings("unchecked")
-    public List<Schedule>  findByTutorId(Integer tutorId) {
-        Query query = super.getEntityManager().createNamedQuery("Schedule.findByTutorId", Schedule.class);
-        query.setParameter("tutorId", tutorId);
+    public List<Schedule> findByUserIdDate(Integer userId, java.util.Date date) {
+        Query query = super.getEntityManager().createNamedQuery("Schedule.findByUserIdDate", Schedule.class);
+        query.setParameter("userId", userId);
         List<Schedule> list = query.getResultList();
+        query.setParameter("date", date);
         super.release();
         return list;
     }

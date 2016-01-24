@@ -282,14 +282,29 @@ public class ScheduleView extends BaseView {
             super.error("End date is empty");
             ret = false;
         }
+        if (s.getStartTime().after(s.getEndTime())) {
+            super.error("Start time is after End time");
+            ret = false;
+        }
         // check start time and end time range
         List<Schedule> list1 = new ArrayList<Schedule>();
         if (s.getTutorId() != null) {
-            list1.addAll(new ScheduleBO().findByTutorId(s.getTutorId()));
+            list1.addAll(new ScheduleBO().findByTutorIdDate(s.getTutorId(), s.getStartTime()));
         }
         List<Schedule> list2 = new ArrayList<Schedule>();
         if (s.getUserId() != null) {
-            list2.addAll(new ScheduleBO().findByUserId(s.getUserId()));
+            list2.addAll(new ScheduleBO().findByUserIdDate(s.getUserId(), s.getStartTime()));
+        }
+        for (Schedule item : list2) {
+            if (!list1.contains(item)) {
+                list1.add(item);
+            }
+        }
+            
+        if (s.getId() == null) { // new event 
+            for (Schedule item : list1) {
+            	
+            }
         }
         return ret;
     }
