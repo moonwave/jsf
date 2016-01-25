@@ -184,6 +184,9 @@ public class ScheduleView extends BaseView {
         }
         this.allowRemove = getLoggedInUser().getId().equals(s.getUserId()); // a user can only remove his own event
         showTutor = s.isTutorEvent() || (this.tutorId != null);
+        if (s.isTutorEvent()) {
+            eventTitle = super.getLocaleLabels().getString("tutorEvent");
+        }
         if (!showTutor) {
             eventTitle = super.getLocaleLabels().getString("personalEvent");
         }
@@ -272,6 +275,10 @@ public class ScheduleView extends BaseView {
     }
 
     // ========================================================= Private methods
+
+    /**
+     * Return true if pass validation, false otherwise
+     */
     private boolean validate(Schedule s) {
         boolean ret = true;
         if (s.getStartTime() == null) {
@@ -286,24 +293,55 @@ public class ScheduleView extends BaseView {
             super.error("Start time is after End time");
             ret = false;
         }
-        // check start time and end time range
+        // check start time and end time range against other student's schedules
         List<Schedule> list1 = new ArrayList<Schedule>();
         if (s.getTutorId() != null) {
             list1.addAll(new ScheduleBO().findByTutorIdDate(s.getTutorId(), s.getStartTime()));
         }
+        boolean duplicate = false;
+        for (Schedule item : list1) {
+            if (item.isTutorEvent()) {
+                continue;
+            }
+            if (isInDateRange(item.getStartTime(), item.getEndTime(), s.getStartTime()) || isInDateRange(item.getStartTime(), item.getEndTime(), s.getEndTime())) {
+                if (s.getId() == null) {
+                    duplicate = true;
+                    break;
+                } else if (!s.getId().equals(item.getId())) {
+                    duplicate = true;
+                    break;
+                }
+            }
+        }
+        if (duplicate) {
+            super.error("Event start time / end time conflicts with existing events");
+            ret = false;
+        }
+
+        // check start time and end time range against own schedules
         List<Schedule> list2 = new ArrayList<Schedule>();
         if (s.getUserId() != null) {
             list2.addAll(new ScheduleBO().findByUserIdDate(s.getUserId(), s.getStartTime()));
         }
+        duplicate = false;
         for (Schedule item : list2) {
-            if (!list1.contains(item)) {
-                list1.add(item);
+            if (isInDateRange(item.getStartTime(), item.getEndTime(), s.getStartTime()) || isInDateRange(item.getStartTime(), item.getEndTime(), s.getEndTime())) {
+                if (s.getId() == null) {
+                    duplicate = true;
+                    break;
+                } else if (!s.getId().equals(item.getId())) {
+                    duplicate = true;
+                    break;
+                }
             }
         }
-            
+        if (duplicate) {
+            super.error("Event start time / end time conflicts with existing events");
+            ret = false;
+        }
         if (s.getId() == null) { // new event 
             for (Schedule item : list1) {
-            	
+                
             }
         }
         return ret;
@@ -378,5 +416,17 @@ public class ScheduleView extends BaseView {
 
     public boolean allowRemove() {
         return allowRemove; // true - allow remove
+    }
+    
+    /**
+     * Return true if dateToCheck falls into start date and end date range
+     * 
+     */
+    private boolean isInDateRange(Date startDate, Date endDate, Date dateToCheck) {
+        boolean ret = false;
+        if (startDate.before(dateToCheck) && dateToCheck.before(endDate)) {
+            ret = true;
+        }
+        return ret;
     }
 }

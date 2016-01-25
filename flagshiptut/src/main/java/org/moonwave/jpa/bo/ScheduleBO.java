@@ -6,6 +6,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.Query;
 
 import org.moonwave.jpa.model.Schedule;
+import org.moonwave.util.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,9 +56,12 @@ public class ScheduleBO extends BaseBO {
 
     @SuppressWarnings("unchecked")
     public List<Schedule>  findByTutorIdDate(Integer tutorId, java.util.Date date) {
+        java.util.Date startDate = DateUtil.clearHHMMSSmm(date);
+        java.util.Date endDate = DateUtil.addDays(startDate, 1);
         Query query = super.getEntityManager().createNamedQuery("Schedule.findByTutorIdDate", Schedule.class);
         query.setParameter("tutorId", tutorId);
-        query.setParameter("date", date);
+        query.setParameter("startDate", startDate);
+        query.setParameter("endDate", endDate);
         List<Schedule> list = query.getResultList();
         super.release();
         return list;
@@ -74,10 +78,13 @@ public class ScheduleBO extends BaseBO {
 
     @SuppressWarnings("unchecked")
     public List<Schedule> findByUserIdDate(Integer userId, java.util.Date date) {
+        java.util.Date startDate = DateUtil.clearHHMMSSmm(date);
+        java.util.Date endDate = DateUtil.addDays(startDate, 1);
         Query query = super.getEntityManager().createNamedQuery("Schedule.findByUserIdDate", Schedule.class);
         query.setParameter("userId", userId);
+        query.setParameter("startDate", startDate);
+        query.setParameter("endDate", endDate);
         List<Schedule> list = query.getResultList();
-        query.setParameter("date", date);
         super.release();
         return list;
     }

@@ -20,9 +20,9 @@ import java.sql.Timestamp;
     @NamedQuery(name="Schedule.findAll",  query="SELECT s FROM Schedule s"),
     @NamedQuery(name="Schedule.findById", query="SELECT s FROM Schedule s WHERE s.id = :id"),
     @NamedQuery(name="Schedule.findByTutorId", query="SELECT s FROM Schedule s WHERE s.tutorId = :tutorId"),
-    @NamedQuery(name="Schedule.findByTutorIdDate", query="SELECT s FROM Schedule s WHERE s.tutorId = :tutorId AND s.startTime <= :date AND :date <= s.endTime"),
+    @NamedQuery(name="Schedule.findByTutorIdDate", query="SELECT s FROM Schedule s WHERE s.tutorId = :tutorId AND :startDate <= s.startTime AND s.startTime < :endDate ORDER BY s.startTime"),
     @NamedQuery(name="Schedule.findByUserId", query="SELECT s FROM Schedule s WHERE s.userId = :userId"),
-    @NamedQuery(name="Schedule.findByUserIdDate", query="SELECT s FROM Schedule s WHERE s.userId = :userId AND s.startTime <= :date AND :date <= s.endTime"),
+    @NamedQuery(name="Schedule.findByUserIdDate", query="SELECT s FROM Schedule s WHERE s.userId = :userId AND :startDate <= s.startTime AND s.startTime < :endDate ORDER BY s.startTime"),
 })
 
 public class Schedule implements Serializable {
